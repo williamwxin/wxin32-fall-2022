@@ -1111,7 +1111,7 @@ for i, iter in enumerate(iters_all):
         max_iters = iter
         max_attempts = 100
         mutation_prob = 0.1
-        pop_size = 40
+        pop_size =80
         lr = 0.3
         nn_ga = mlrose.NeuralNetwork(hidden_nodes=[32], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                      max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
@@ -1124,69 +1124,28 @@ for i, iter in enumerate(iters_all):
     acc_iters_all[i,8] = acc
     print('GA', acc_tr, acc)
 
-np.savetxt("iters.csv",acc_iters_all, delimiter=',')
+acc_iters_all[:,7:]=0
+for i, iter in enumerate(iters_all):
+    print(iter)
+    acc = 0
+    acc_tr = 0
+    for k in range(3):
+        max_iters = iter
+        max_attempts = 100
+        mutation_prob = 0.1
+        pop_size = 80
+        lr = 0.3
+        nn_ga = mlrose.NeuralNetwork(hidden_nodes=[32], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
+                                     max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
+        nn_ga_res = nn_ga.fit(train_x, train_y)
+        y_pred = nn_ga.predict(test_x)
+        y_pred_tr = nn_ga.predict(train_x)
+        acc += accuracy_score(test_y, y_pred) / 3
+        acc_tr += accuracy_score(train_y, y_pred_tr) / 3
+    acc_iters_all[i,7] = acc_tr
+    acc_iters_all[i,8] = acc
+    print('GA', acc_tr, acc)
 
-# if True:
-#     iter = 10000
-#     print(iter)
-#     acc = 0
-#     acc_tr = 0
-#     for k in range(5):
-#         max_iters = iter
-#         max_attempts = 50
-#         lr = 0.001
-#         nn_gd = mlrose.NeuralNetwork(hidden_nodes=[32], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='gradient_descent', max_iters=max_iters,
-#                                      max_attempts=max_attempts, curve=True)
-#         nn_gd_res = nn_gd.fit(train_x, train_y)
-#         y_pred = nn_gd.predict(test_x)
-#         y_pred_tr = nn_gd.predict(train_x)
-#         acc += accuracy_score(test_y, y_pred) / 5
-#         acc_tr += accuracy_score(train_y, y_pred_tr) / 5
-#         print(acc_tr, acc)
-#     print('GD', acc_tr, acc)
-#     acc_iters_all[i,1] = acc_tr
-#     acc_iters_all[i,2] = acc
-
-# acc_iters_all_bkp = copy.copy(acc_iters_all)
-
-# for i, iter in enumerate(iters_all):
-#     print(iter)
-#
-#     # acc = 0
-#     # acc_tr = 0
-#     # for k in range(5):
-#     #     max_iters = iter
-#     #     max_attempts = 50
-#     #     mutation_prob = 0.1
-#     #     pop_size = 60
-#     #     lr = 0.05
-#     #     nn_ga = mlrose.NeuralNetwork(hidden_nodes=[32], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
-#     #                                  max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
-#     #     nn_ga_res = nn_ga.fit(train_x, train_y)
-#     #     y_pred = nn_ga.predict(test_x)
-#     #     y_pred_tr = nn_ga.predict(train_x)
-#     #     acc += accuracy_score(test_y, y_pred) / 5
-#     #     acc_tr += accuracy_score(train_y, y_pred_tr) / 5
-#     # acc_iters_all[i,7] = acc_tr
-#     # acc_iters_all[i,8] = acc
-#     acc = 0
-#     acc_tr = 0
-#     for k in range(5):
-#         max_iters = iter
-#         max_attempts = 10
-#         restarts = 50
-#         lr = 0.3
-#         nn_rhc = mlrose.NeuralNetwork(hidden_nodes=[32], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='random_hill_climb', max_iters=max_iters,
-#                                       max_attempts=max_attempts, restarts=restarts, curve=True)
-#         nn_rhc_res = nn_rhc.fit(train_x, train_y)
-#         y_pred = nn_rhc.predict(test_x)
-#         y_pred_tr = nn_rhc.predict(train_x)
-#         acc += accuracy_score(test_y, y_pred) / 5
-#         acc_tr += accuracy_score(train_y, y_pred_tr) / 5
-#     acc_iters_all[i,3] = acc_tr
-#     acc_iters_all[i,4] = acc
-#     print('RHC', acc_tr, acc)
-#     print('--')
 
 acc_res = np.zeros((len(iters_all)+1,9)).astype(object)
 acc_res[1:,:] = acc_iters_all
@@ -1197,7 +1156,7 @@ sns.set()
 fig, ax = plt.subplots(figsize=(4, 2))
 plt.subplots_adjust(bottom=.29)
 plt.subplots_adjust(left=.18)
-plt.title('NN: Train Acc vs Iteration')
+plt.title('NN 32: Train Acc vs Iteration')
 plt.xlabel('Iteration')
 plt.ylabel('Accuracy')
 sns.lineplot(y=acc_iters_all[:, 1], x=iters_all, label='Grad Desc')
@@ -1205,13 +1164,13 @@ sns.lineplot(y=acc_iters_all[:, 3], x=iters_all, label='RHC')
 sns.lineplot(y=acc_iters_all[:, 5], x=iters_all, label='SA')
 sns.lineplot(y=acc_iters_all[:, 7], x=iters_all, label='GA')
 plt.legend(loc='lower center')
-plt.savefig('NN Train vs Iter')
+plt.savefig('NN32 Train vs Iter')
 
 sns.set()
 fig, ax = plt.subplots(figsize=(4, 2))
 plt.subplots_adjust(bottom=.29)
 plt.subplots_adjust(left=.18)
-plt.title('NN: Test Acc vs Iteration')
+plt.title('NN 32: Test Acc vs Iteration')
 plt.xlabel('Iteration')
 plt.ylabel('Accuracy')
 sns.lineplot(y=acc_iters_all[:, 2], x=iters_all, label='Grad Desc')
@@ -1219,7 +1178,7 @@ sns.lineplot(y=acc_iters_all[:, 4], x=iters_all, label='RHC')
 sns.lineplot(y=acc_iters_all[:, 6], x=iters_all, label='SA')
 sns.lineplot(y=acc_iters_all[:, 8], x=iters_all, label='GA')
 plt.legend(loc='lower center')
-plt.savefig('NN Test vs Iter')
+plt.savefig('NN32 Test vs Iter')
 
 
 gd_iter = 1000
@@ -1309,7 +1268,7 @@ for i in range(avg):
     max_iters = 200
     max_attempts = 100
     mutation_prob = 0.1
-    pop_size = 40
+    pop_size = 80
     lr = 0.3
     nn_ga = mlrose.NeuralNetwork(hidden_nodes=[32], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                  max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
@@ -1330,7 +1289,7 @@ ax2.grid(False)
 ax.grid(False)
 plt.subplots_adjust(bottom=.26)
 plt.subplots_adjust(left=.16)
-plt.title('Clock Time and Accuracy')
+plt.title('NN Hidden Layer Size 32:Clock Time and Accuracy')
 plt.xlabel('Algorithm + Iterations')
 ax.set_ylabel('Clock Time (Sec)')
 ax2.set_ylabel('Accuracy')
@@ -1353,7 +1312,7 @@ for xy in zip(k, time_all[3, :]):
 for xy in zip(k, time_all[1,:]):
     t = round(xy[1], 2)
     ax.annotate('%s sec' % t, xy=xy, textcoords='data', fontsize=10, ha='center')
-plt.savefig('NN clock and accuracy')
+plt.savefig('NN32 clock and accuracy')
 
 
 if True:
@@ -1423,7 +1382,7 @@ if True:
             max_iters = iter
             max_attempts = 100
             mutation_prob = 0.1
-            pop_size = 40
+            pop_size = 80
             lr = 0.3
             nn_ga = mlrose.NeuralNetwork(hidden_nodes=[64], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                          max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
@@ -1534,7 +1493,7 @@ if True:
             max_iters = iter
             max_attempts = 100
             mutation_prob = 0.1
-            pop_size = 40
+            pop_size = 80
             lr = 0.3
             nn_ga = mlrose.NeuralNetwork(hidden_nodes=[128], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                          max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
@@ -1646,7 +1605,7 @@ if True:
             max_iters = iter
             max_attempts = 100
             mutation_prob = 0.1
-            pop_size = 40
+            pop_size = 80
             lr = 0.3
             nn_ga = mlrose.NeuralNetwork(hidden_nodes=[256], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                          max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
@@ -1759,7 +1718,7 @@ if True:
             max_iters = iter
             max_attempts = 100
             mutation_prob = 0.1
-            pop_size = 40
+            pop_size = 80
             lr = 0.3
             nn_ga = mlrose.NeuralNetwork(hidden_nodes=[512], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                          max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
@@ -1894,7 +1853,7 @@ for i in range(avg):
     max_iters = 200
     max_attempts = 100
     mutation_prob = 0.1
-    pop_size = 40
+    pop_size = 80
     lr = 0.3
     nn_ga = mlrose.NeuralNetwork(hidden_nodes=[128], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                  max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
@@ -1993,7 +1952,7 @@ for i in range(avg):
     max_iters = 200
     max_attempts = 100
     mutation_prob = 0.1
-    pop_size = 40
+    pop_size = 80
     lr = 0.3
     nn_ga = mlrose.NeuralNetwork(hidden_nodes=[512], activation='relu', bias=True, is_classifier=True, learning_rate=lr, early_stopping=True, algorithm='genetic_alg', max_iters=max_iters,
                                  max_attempts=max_attempts, mutation_prob=mutation_prob, pop_size=pop_size, curve=True)
